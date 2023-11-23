@@ -34,6 +34,7 @@ while True:
 
                 serialized_message = response.SerializeToString()
                 length_prefix = len(serialized_message).to_bytes(4, byteorder='little')
+                
                 connection.send(length_prefix + serialized_message)
                 break
     finally:
