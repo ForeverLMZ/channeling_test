@@ -13,11 +13,11 @@ public class ButtonHandler : MonoBehaviour
         if (messageType == "One"){
 			numberDisplay.text = networkManager.RequestRandomNumber().ToString();
 		}
-/*
+
 		else if (messageType == "Two"){
-			imageDisplay = networkManager.RequestImage();
+			networkManager.RequestImage();
 		}
-*/
+
         
     }
 }
