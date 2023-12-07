@@ -10,7 +10,7 @@ using System.Collections.Generic;
 public class NetworkManager : MonoBehaviour
 {
     public Text numberDisplay;
-    public RawImage imageDisplay; // Assign this in the inspector
+    public RawImage imageDisplay; 
     private readonly Queue<Action> _executeOnMainThread = new Queue<Action>();
 
     public void ExecuteOnMainThread(Action action)
@@ -29,7 +29,7 @@ public class NetworkManager : MonoBehaviour
 
     void Update()
     {
-        // Dispatch actions that need to be executed on the main thread
+        
         while (_executeOnMainThread.Count > 0)
         {
             Action action = null;

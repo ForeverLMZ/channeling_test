@@ -5,7 +5,7 @@ public class ButtonHandler : MonoBehaviour
 {
     public NetworkManager networkManager;
     public Text numberDisplay;
-    public RawImage imageDisplay; // Assign this in the Unity Editor
+    public RawImage imageDisplay; 
     public string messageType;
 
     public void OnButtonClick()
