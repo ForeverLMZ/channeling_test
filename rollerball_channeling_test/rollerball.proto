@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package rollerball;
+
+message Observation {
+    float position_x = 1;
+    float position_y = 2;
+    float velocity_x = 3;
+    float velocity_y = 4;
+}
+
+message Action {
+    float force_x = 1;
+    float force_y = 2;
+}
+
+message RewardSignal {
+    float reward = 1;
+    bool done = 2;
+}
