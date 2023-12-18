@@ -10,39 +10,47 @@ optimizer = torch.optim.Adam(agent.parameters(), lr=0.01)
 
 # Socket setup
 host = 'localhost'
-port = 12345
+port = 4242
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.bind((host, port))
 server_socket.listen(1)
 
 print(f"Listening on {host}:{port}")
 
+def receive_message(connection):
+    lengthbuf = connection.recv(4)
+    length, = struct.unpack('!I', lengthbuf)
+    return connection.recv(length)
+
+
 while True:
     connection, address = server_socket.accept()
     print(f"Connection from {address}")
 
-    # Receive data
-    data = connection.recv(1024)
-    observation = Observation()
-    observation.ParseFromString(data)
+    try:
+        while True:
+            data = receive_message(connection)
+            if not data:
+                print("no data detected :(")
+            # Receive data
+            observation = Observation()
+            observation.ParseFromString(data)
 
-    # Process observation and get action
-    observation_tensor = torch.tensor([observation.position_x, observation.position_y, observation.velocity_x, observation.velocity_y], dtype=torch.float32)
-    action_probs, _ = agent(observation_tensor)
-    action = torch.distributions.Categorical(action_probs).sample()
+            # Process the observation to create an input tensor for the agent
+            # Assume the observation includes position and target position （Note that we need xyz info instead of only xy)
+            obs_tensor = torch.tensor([observation.Position.X, observation.Position.Y, observation.Position.Z,
+                                       observation.TargetPosition.X, observation.TargetPosition.Y, observation.TargetPosition.Z],
+                                      dtype=torch.float32)
 
-    # Send action back to Unity
-    action_msg = Action()
-    action_msg.force_x = action[0].item()
-    action_msg.force_y = action[1].item()
-    connection.send(action_msg.SerializeToString())
+            # Get action from the agent
+            agent_output = agent(obs_tensor)
+            action_values = agent_output.detach().numpy()  # Convert to numpy array
 
-    # Receive reward signal
-    data = connection.recv(1024)
-    reward_signal = RewardSignal()
-    reward_signal.ParseFromString(data)
-
-    # Train the agent
-    train(agent, optimizer, [(observation_tensor, action, reward_signal.reward)])
-
-    connection.close()
+            # Create an Action message to send back
+            action = Action()
+            action.ForceX, action.ForceZ = action_values[0], action_values[1]  # Assuming 2D force
+            serialized_action = action.SerializeToString()
+            connection.sendall(struct.pack('!I', len(serialized_action)))
+            connection.sendall(serialized_action)
+    finally:
+        connection.close()
