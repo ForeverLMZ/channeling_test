@@ -40,7 +40,10 @@ def train(agent, optimizer, episode_data):
 
 # Reads the incoming Protobuf messages from the Unity side.
 def receive_message(connection):
+    print("starting to receive incoming message...")
     lengthbuf = connection.recv(4)
+    print("lengthbuf is", lengthbuf)
+
     if len(lengthbuf) != 4:
         print(" the message is incomplete or the connection was closed")
         return None
@@ -51,7 +54,9 @@ def receive_message(connection):
 def collect_episode_data(connection):
     episode_data = []
     while True:
+        print("data")
         data = receive_message(connection)
+        print(data)
         if not data:
             break  # End of episode
         observation = Observation()
@@ -72,8 +77,9 @@ def collect_episode_data(connection):
         serialized_action = action.SerializeToString()
         connection.sendall(struct.pack('!I', len(serialized_action)))
         connection.sendall(serialized_action)
-        
+
         # Receive reward signal from Unity
+        print("reward")
         reward_data = receive_message(connection)
         reward_signal = RewardSignal()
         reward_signal.ParseFromString(reward_data)

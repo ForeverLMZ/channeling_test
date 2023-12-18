@@ -19,22 +19,22 @@ server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.bind((host, port))
 server_socket.listen(1)
 
-def receive_message(connection):
-    lengthbuf = connection.recv(4)
-    length, = struct.unpack('!I', lengthbuf)
-    return connection.recv(length)
 
 # Start the server and listen for connections
 current_episode = 0
 while current_episode < num_episodes:
     connection, address = server_socket.accept()
+    print("connection accepted")
     try:
         episode_data = collect_episode_data(connection)
         if episode_data:
+            print("episode_data received")
+            print(episode_data)
             train(agent, optimizer, episode_data)
             current_episode += 1
             print(f"Episode {current_episode} completed")
     finally:
+        print("connection closed")
         connection.close()
 
 # After training, close the server.
