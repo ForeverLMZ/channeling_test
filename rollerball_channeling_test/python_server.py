@@ -1,8 +1,9 @@
 import socket
 import struct
-from simple_rl_agent import SimpleRLAgent
+from simple_rl_agent import SimpleRLAgent, train, collect_episode_data
 import torch
-from rollerball_pb2 import Observation, Action
+
+num_episodes = 1000
 
 # Initialize the RL agent
 input_size = 6  # Depends on your observation space
@@ -23,31 +24,19 @@ def receive_message(connection):
     length, = struct.unpack('!I', lengthbuf)
     return connection.recv(length)
 
-while True:
+# Start the server and listen for connections
+current_episode = 0
+while current_episode < num_episodes:
     connection, address = server_socket.accept()
     try:
-        while True:
-            data = receive_message(connection)
-            if not data:
-                break
-            observation = Observation()
-            observation.ParseFromString(data)
-            
-            # Process the observation to create an input tensor for the agent
-            # Assume the observation includes position and target position
-            obs_tensor = torch.tensor([observation.Position.X, observation.Position.Y, observation.Position.Z,
-                                       observation.TargetPosition.X, observation.TargetPosition.Y, observation.TargetPosition.Z],
-                                      dtype=torch.float32)
-
-            # Get action from the agent
-            agent_output = agent(obs_tensor)
-            action_values = agent_output.detach().numpy()  # Convert to numpy array
-
-            # Create an Action message to send back
-            action = Action()
-            action.ForceX, action.ForceZ = action_values[0], action_values[1]  # Assuming 2D force
-            serialized_action = action.SerializeToString()
-            connection.sendall(struct.pack('!I', len(serialized_action)))
-            connection.sendall(serialized_action)
+        episode_data = collect_episode_data(connection)
+        if episode_data:
+            train(agent, optimizer, episode_data)
+            current_episode += 1
+            print(f"Episode {current_episode} completed")
     finally:
         connection.close()
+
+# After training, close the server.
+server_socket.close()
+print("Training completed.")

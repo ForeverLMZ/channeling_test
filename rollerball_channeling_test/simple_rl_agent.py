@@ -2,7 +2,9 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
-import random
+import struct
+from rollerball_pb2 import Observation, Action, RewardSignal 
+
 
 # Neural Network for the Agent
 class SimpleRLAgent(nn.Module):
@@ -16,10 +18,9 @@ class SimpleRLAgent(nn.Module):
         x = F.softmax(self.fc2(x), dim=-1)
         return x
 
-#TODO: hyperparameter tuning?
-input_size = 4  # TODO: what should input_size be?
+input_size = 6  
 hidden_size = 128
-output_size = 2  # TODO: what should output_size be?
+output_size = 2  
 
 # Initialize the network and optimizer
 net = SimpleRLAgent(input_size, hidden_size, output_size)
@@ -37,19 +38,50 @@ def train(agent, optimizer, episode_data):
         loss.backward()
     optimizer.step()
 
-# TODO: collect data from Unity via protobuf
-def collect_episode_data():
+# Reads the incoming Protobuf messages from the Unity side.
+def receive_message(connection):
+    lengthbuf = connection.recv(4)
+    if len(lengthbuf) != 4:
+        print(" the message is incomplete or the connection was closed")
+        return None
+    length, = struct.unpack('!I', lengthbuf)
+    return connection.recv(length)
+
+#Collect data from Ubnity via protobuf
+def collect_episode_data(connection):
     episode_data = []
-    for _ in range(100):  # number of steps in an episode
-        observation = torch.randn(4)  
-        action = random.randint(0, 1)  
-        reward = random.random() 
-        episode_data.append((observation, torch.tensor([action]), reward))
+    while True:
+        data = receive_message(connection)
+        if not data:
+            break  # End of episode
+        observation = Observation()
+        observation.ParseFromString(data)
+
+        # Convert observation to tensor
+        obs_tensor = torch.tensor([observation.Position.X, observation.Position.Y, observation.Position.Z,
+                                   observation.TargetPosition.X, observation.TargetPosition.Y, observation.TargetPosition.Z],
+                                  dtype=torch.float32)
+
+        # Get action from the agent
+        agent_output = net(obs_tensor)
+        action_values = agent_output.detach().numpy()  # Convert to numpy array
+
+        # Choose action based on the agent's output
+        action = Action()
+        action.Force.X, action.Force.Y, action.Force.Z = action_values[0], 0, action_values[1]  # Set X and Z forces; Y is set to 0
+        serialized_action = action.SerializeToString()
+        connection.sendall(struct.pack('!I', len(serialized_action)))
+        connection.sendall(serialized_action)
+        
+        # Receive reward signal from Unity
+        reward_data = receive_message(connection)
+        reward_signal = RewardSignal()
+        reward_signal.ParseFromString(reward_data)
+
+        episode_data.append((obs_tensor, torch.tensor([action_values]), reward_signal.reward))
+
+        if reward_signal.done:
+            break  # End of episode
+
     return episode_data
 
-# Training Loop
-for episode in range(1000):  # Example number of episodes
-    episode_data = collect_episode_data()
-    train(net, optimizer, episode_data)
-    if episode % 100 == 0:
-        print(f"Episode {episode} completed")

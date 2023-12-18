@@ -2,16 +2,19 @@ syntax = "proto3";
 
 package rollerball;
 
+message Vector3Data {
+    float X = 1;
+    float Y = 2;
+    float Z = 3;
+}
+
 message Observation {
-    float position_x = 1;
-    float position_y = 2;
-    float velocity_x = 3;
-    float velocity_y = 4;
+    Vector3Data Position = 1;
+    Vector3Data TargetPosition = 2;
 }
 
 message Action {
-    float force_x = 1;
-    float force_y = 2;
+    Vector3Data  Force= 1;	
 }
 
 message RewardSignal {
