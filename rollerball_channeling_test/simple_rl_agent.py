@@ -75,14 +75,13 @@ def receive_message(connection):
 def collect_episode_data(connection):
     episode_data = []
     while True:
-        print("data:")
-        data = receive_message(connection)
-        print(data)
-        if not data:
+        print("starting a new update:")
+        serilized_observation = receive_message(connection)
+        if not serilized_observation:
             break  # End of episode
         observation = Observation()
-        observation.ParseFromString(data)
-
+        observation.ParseFromString(serilized_observation)
+        print("observation:", observation.Position.X, observation.Position.Y, observation.Position.Z )
         # Convert observation to tensor
         obs_tensor = torch.tensor([observation.Position.X, observation.Position.Y, observation.Position.Z,
                                    observation.TargetPosition.X, observation.TargetPosition.Y, observation.TargetPosition.Z],
@@ -90,7 +89,9 @@ def collect_episode_data(connection):
 
         # Get action from the agent
         agent_output = net(obs_tensor)
+        
         action_values = agent_output.detach().numpy()  # Convert to numpy array
+
 
         # Choose action based on the agent's output
         action = Action()
@@ -100,15 +101,16 @@ def collect_episode_data(connection):
         connection.sendall(serialized_action)
 
         # Receive reward signal from Unity
-        print("Receive reward signal from Unity")
+        print("Receiving reward signal from Unity")
+
         reward_data = receive_message(connection)
         reward_signal = RewardSignal()
         reward_signal.ParseFromString(reward_data)
-        print(reward_signal.done)
+        print("reward signal:",reward_signal.reward)
 
         #episode_data.append((obs_tensor, torch.tensor([action_values]), reward_signal.reward))
         episode_data.append((obs_tensor, torch.tensor(numpy.array(action_values)), reward_signal.reward))
-
+        print("episode data appended")
 
         if reward_signal.done:
             break  # End of episode
