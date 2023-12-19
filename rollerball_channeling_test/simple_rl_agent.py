@@ -3,7 +3,10 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 import struct
+import numpy
 from rollerball_pb2 import Observation, Action, RewardSignal 
+
+GAMMA = 0.99 #discount factor
 
 
 # Neural Network for the Agent
@@ -32,12 +35,13 @@ def train(agent, optimizer, episode_data):
     cumulative_reward = 0
     for step_data in reversed(episode_data):
         observation, action, reward = step_data
-        cumulative_reward = reward + 0.99 * cumulative_reward
+        cumulative_reward = reward + GAMMA * cumulative_reward #discounted cumulative reward
         action_prob = agent(observation).gather(1, action.view(-1, 1))
         loss = -torch.log(action_prob) * cumulative_reward
         loss.backward()
     optimizer.step()
 
+'''
 # Reads the incoming Protobuf messages from the Unity side.
 def receive_message(connection):
     print("starting to receive incoming message...")
@@ -49,12 +53,29 @@ def receive_message(connection):
         return None
     length, = struct.unpack('!I', lengthbuf)
     return connection.recv(length)
+'''
 
-#Collect data from Ubnity via protobuf
+def receive_message(connection):
+    lengthbuf = connection.recv(4)
+    if len(lengthbuf) != 4:
+        raise ValueError("Invalid length received")
+    length = struct.unpack('!I', lengthbuf)[0]
+
+    serialized_data = connection.recv(length)
+    if len(serialized_data) != length:
+        raise ValueError("Did not receive the expected amount of data")
+    print("Signal received")
+
+    return serialized_data
+
+
+
+
+#Collect data from Unity via protobuf
 def collect_episode_data(connection):
     episode_data = []
     while True:
-        print("data")
+        print("data:")
         data = receive_message(connection)
         print(data)
         if not data:
@@ -79,12 +100,15 @@ def collect_episode_data(connection):
         connection.sendall(serialized_action)
 
         # Receive reward signal from Unity
-        print("reward")
+        print("Receive reward signal from Unity")
         reward_data = receive_message(connection)
         reward_signal = RewardSignal()
         reward_signal.ParseFromString(reward_data)
+        print(reward_signal.done)
 
-        episode_data.append((obs_tensor, torch.tensor([action_values]), reward_signal.reward))
+        #episode_data.append((obs_tensor, torch.tensor([action_values]), reward_signal.reward))
+        episode_data.append((obs_tensor, torch.tensor(numpy.array(action_values)), reward_signal.reward))
+
 
         if reward_signal.done:
             break  # End of episode

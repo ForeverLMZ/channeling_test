@@ -18,14 +18,17 @@ public class RollerBallAgent : MonoBehaviour
     private NetworkStream stream;
     private BinaryReader reader;
     private BinaryWriter writer;
-    private const string host = "localhost";
+    private const string host = "192.168.0.157";
     private const int port = 4242;
+    
+    private Vector3 previousPosition;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         ConnectToServer();
         OnEpisodeBegin();
+        previousPosition = transform.localPosition;
 
     }
 
@@ -39,13 +42,23 @@ public class RollerBallAgent : MonoBehaviour
     
     void FixedUpdate() //Note to self: This is a Unity-specific function >.<
     {
+        
         if (IsEpisodeComplete())
         {
+            Debug.Log("Episode Complete detected in FixedUpdate()");
+            SendRewardSignal(true);
             OnEpisodeBegin();
         }
 
-        SendObservationToServer();
-        ReceiveActionFromServer();
+        if (stream != null)
+        {
+            Debug.Log("entering into SendObservationToServer() ");
+            SendObservationToServer();
+            Debug.Log("entering into ReceiveActionFromServer()");
+            ReceiveActionFromServer();
+        }
+        
+
     }
     
     bool IsEpisodeComplete()
@@ -78,6 +91,8 @@ public class RollerBallAgent : MonoBehaviour
     
     void SendObservationToServer()
     {
+        Debug.Log("Sending new Observation To Server..");
+
         try
         {
             Observation observation = new Observation
@@ -85,6 +100,8 @@ public class RollerBallAgent : MonoBehaviour
                 Position = new Vector3Data { X = transform.localPosition.x, Y = transform.localPosition.y, Z = transform.localPosition.z },
                 TargetPosition = new Vector3Data { X = target.localPosition.x, Y = target.localPosition.y, Z = target.localPosition.z }
             };
+            Debug.Log(transform.localPosition.x);
+            Debug.Log(target.localPosition.x);
 
             byte[] serializedObservation = observation.ToByteArray();
             writer.Write(IPAddress.HostToNetworkOrder(serializedObservation.Length));
@@ -135,4 +152,51 @@ public class RollerBallAgent : MonoBehaviour
         if (client != null)
             client.Close();
     }
+    
+    void SendRewardSignal(bool done)
+    {
+        RewardSignal rewardSignal = new RewardSignal
+        {
+            Done = done,
+            // Set the reward value as needed
+            Reward = CalculateReward() 
+        };
+
+        byte[] serializedRewardSignal = rewardSignal.ToByteArray();
+        writer.Write(IPAddress.HostToNetworkOrder(serializedRewardSignal.Length));
+        writer.Write(serializedRewardSignal);
+    }
+    
+    float CalculateReward()
+    {
+        // Constants
+        float rewardForReachingTarget = 10.0f;  // Large reward for reaching the target
+        float rewardForMovingCloser = 0.1f;     // Small reward for moving closer to the target
+        float penaltyForMovingAway = -0.1f;     // Small penalty for moving away from the target
+
+        // Calculate the current and previous distances to the target
+        float currentDistance = Vector3.Distance(transform.localPosition, target.localPosition);
+        float previousDistance = Vector3.Distance(previousPosition, target.localPosition);
+
+        // Update the previous position for the next frame
+        previousPosition = transform.localPosition;
+
+        // Check if the target is reached
+        if (currentDistance < reachDistance)
+        {
+            return rewardForReachingTarget;  // Large reward for reaching the target
+        }
+
+        // Reward for moving closer, penalty for moving away
+        if (currentDistance < previousDistance)
+        {
+            return rewardForMovingCloser;  // Reward for getting closer
+        }
+        else
+        {
+            return penaltyForMovingAway;  // Penalty for moving away
+        }
+    }
+
+
 }
