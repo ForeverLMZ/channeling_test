@@ -4,7 +4,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 import struct
 import numpy
-from rollerball_pb2 import Observation, Action, RewardSignal 
+from rollerball_pb2 import Observation, Action, RewardSignal, PixelData 
 
 GAMMA = 0.99 #discount factor
 
@@ -64,7 +64,6 @@ def receive_message(connection):
     serialized_data = connection.recv(length)
     if len(serialized_data) != length:
         raise ValueError("Did not receive the expected amount of data")
-    print("Signal received")
 
     return serialized_data
 
@@ -76,16 +75,31 @@ def collect_episode_data(connection):
     episode_data = []
     while True:
         print("starting a new update:")
-        serilized_observation = receive_message(connection)
+        serilized_observation = receive_message(connection) #this is the XYZ position observation
         if not serilized_observation:
             break  # End of episode
         observation = Observation()
         observation.ParseFromString(serilized_observation)
-        print("observation:", observation.Position.X, observation.Position.Y, observation.Position.Z )
+        print("observation (X,Y,Z) received:", observation.Position.X, observation.Position.Y, observation.Position.Z )
+        
         # Convert observation to tensor
         obs_tensor = torch.tensor([observation.Position.X, observation.Position.Y, observation.Position.Z,
                                    observation.TargetPosition.X, observation.TargetPosition.Y, observation.TargetPosition.Z],
                                   dtype=torch.float32)
+
+        '''
+        print("receiving pixel data...")
+        serilized_pixel = receive_message(connection) #this is the pixel data
+        print("serilized pixel data received")
+        
+
+        # Deserialize the protobuf message
+        pixel_data_message = PixelData.FromString(serilized_pixel)
+        # Extract the pixel data byte array
+        pixel_data = pixel_data_message.data
+
+        print("pixel data received: ",pixel_data)
+        '''
 
         # Get action from the agent
         agent_output = net(obs_tensor)
@@ -106,7 +120,7 @@ def collect_episode_data(connection):
         reward_data = receive_message(connection)
         reward_signal = RewardSignal()
         reward_signal.ParseFromString(reward_data)
-        print("reward signal:",reward_signal.reward)
+        print("reward signal received:",reward_signal.reward)
 
         #episode_data.append((obs_tensor, torch.tensor([action_values]), reward_signal.reward))
         episode_data.append((obs_tensor, torch.tensor(numpy.array(action_values)), reward_signal.reward))

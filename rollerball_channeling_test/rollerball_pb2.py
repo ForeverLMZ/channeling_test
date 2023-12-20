@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10rollerball.proto\x12\nrollerball\".\n\x0bVector3Data\x12\t\n\x01X\x18\x01 \x01(\x02\x12\t\n\x01Y\x18\x02 \x01(\x02\x12\t\n\x01Z\x18\x03 \x01(\x02\"i\n\x0bObservation\x12)\n\x08Position\x18\x01 \x01(\x0b\x32\x17.rollerball.Vector3Data\x12/\n\x0eTargetPosition\x18\x02 \x01(\x0b\x32\x17.rollerball.Vector3Data\"0\n\x06\x41\x63tion\x12&\n\x05\x46orce\x18\x01 \x01(\x0b\x32\x17.rollerball.Vector3Data\",\n\x0cRewardSignal\x12\x0e\n\x06reward\x18\x01 \x01(\x02\x12\x0c\n\x04\x64one\x18\x02 \x01(\x08\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10rollerball.proto\x12\nrollerball\".\n\x0bVector3Data\x12\t\n\x01X\x18\x01 \x01(\x02\x12\t\n\x01Y\x18\x02 \x01(\x02\x12\t\n\x01Z\x18\x03 \x01(\x02\"i\n\x0bObservation\x12)\n\x08Position\x18\x01 \x01(\x0b\x32\x17.rollerball.Vector3Data\x12/\n\x0eTargetPosition\x18\x02 \x01(\x0b\x32\x17.rollerball.Vector3Data\"0\n\x06\x41\x63tion\x12&\n\x05\x46orce\x18\x01 \x01(\x0b\x32\x17.rollerball.Vector3Data\",\n\x0cRewardSignal\x12\x0e\n\x06reward\x18\x01 \x01(\x02\x12\x0c\n\x04\x64one\x18\x02 \x01(\x08\"\x19\n\tPixelData\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -29,4 +29,6 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_ACTION']._serialized_end=235
   _globals['_REWARDSIGNAL']._serialized_start=237
   _globals['_REWARDSIGNAL']._serialized_end=281
+  _globals['_PIXELDATA']._serialized_start=283
+  _globals['_PIXELDATA']._serialized_end=308
 # @@protoc_insertion_point(module_scope)

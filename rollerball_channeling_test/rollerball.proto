@@ -21,3 +21,7 @@ message RewardSignal {
     float reward = 1;
     bool done = 2;
 }
+
+message PixelData {
+    bytes data = 1;
+}
