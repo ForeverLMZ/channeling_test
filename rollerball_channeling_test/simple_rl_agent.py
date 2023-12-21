@@ -115,7 +115,7 @@ def collect_episode_data(connection):
         connection.sendall(serialized_action)
 
         # Receive reward signal from Unity
-        print("Receiving reward signal from Unity")
+        #print("Receiving reward signal from Unity")
 
         reward_data = receive_message(connection)
         reward_signal = RewardSignal()

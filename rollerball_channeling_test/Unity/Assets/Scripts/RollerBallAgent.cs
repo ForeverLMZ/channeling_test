@@ -46,18 +46,18 @@ public class RollerBallAgent : MonoBehaviour
         
         if (IsEpisodeComplete())
         {
-            Debug.Log("Episode Complete detected in FixedUpdate()");
+            //Debug.Log("Episode Complete detected in FixedUpdate()");
             SendRewardSignal(true);
             OnEpisodeBegin();
         }
 
         if (stream != null)
         {
-            Debug.Log("entering into SendObservationToServer() ");
+            //Debug.Log("entering into SendObservationToServer() ");
             SendObservationToServer();
-            Debug.Log("entering into ReceiveActionFromServer()");
+            //Debug.Log("entering into ReceiveActionFromServer()");
             ReceiveActionFromServer();
-            Debug.Log("entering into SendRewardSignal()");
+            //Debug.Log("entering into SendRewardSignal()");
             SendRewardSignal(false);
         }
         else
@@ -99,7 +99,6 @@ public class RollerBallAgent : MonoBehaviour
     void SendObservationToServer()
     {
         Debug.Log("Sending new Observation To Server..");
-
         try
         {
             Observation observation = new Observation
@@ -111,7 +110,6 @@ public class RollerBallAgent : MonoBehaviour
             byte[] serializedObservation = observation.ToByteArray();
             writer.Write(IPAddress.HostToNetworkOrder(serializedObservation.Length));
             writer.Write(serializedObservation);
-            Debug.Log("Send Observation To Server Complete");
         }
         catch (Exception e)
         {
@@ -130,8 +128,7 @@ public class RollerBallAgent : MonoBehaviour
             Rollerball.Action action = Rollerball.Action.Parser.ParseFrom(message);
             
             ApplyAction(action);
-            Debug.Log("Received Action From Server:");
-            Debug.Log(action);
+            Debug.Log("Received Action From Server: Fx: "+action.Force.X + "; Fy: "+ action.Force.Y + "; Fz: "+action.Force.Z);
         }
         catch (Exception e)
         {
