@@ -30,8 +30,11 @@ namespace Rollerball {
             "YRIvCg5UYXJnZXRQb3NpdGlvbhgCIAEoCzIXLnJvbGxlcmJhbGwuVmVjdG9y",
             "M0RhdGEiMAoGQWN0aW9uEiYKBUZvcmNlGAEgASgLMhcucm9sbGVyYmFsbC5W",
             "ZWN0b3IzRGF0YSIsCgxSZXdhcmRTaWduYWwSDgoGcmV3YXJkGAEgASgCEgwK",
-            "BGRvbmUYAiABKAgiGQoJUGl4ZWxEYXRhEgwKBGRhdGEYASABKAxiBnByb3Rv",
-            "Mw=="));
+            "BGRvbmUYAiABKAgiGQoJUGl4ZWxEYXRhEgwKBGRhdGEYASABKAwirwEKDFVu",
+            "aXR5TWVzc2FnZRIuCgtvYnNlcnZhdGlvbhgBIAEoCzIXLnJvbGxlcmJhbGwu",
+            "T2JzZXJ2YXRpb25IABIwCgxyZXdhcmRTaWduYWwYAiABKAsyGC5yb2xsZXJi",
+            "YWxsLlJld2FyZFNpZ25hbEgAEioKCXBpeGVsRGF0YRgDIAEoCzIVLnJvbGxl",
+            "cmJhbGwuUGl4ZWxEYXRhSABCEQoPbWVzc2FnZV9jb250ZW50YgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -39,7 +42,8 @@ namespace Rollerball {
             new pbr::GeneratedClrTypeInfo(typeof(global::Rollerball.Observation), global::Rollerball.Observation.Parser, new[]{ "Position", "TargetPosition" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Rollerball.Action), global::Rollerball.Action.Parser, new[]{ "Force" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Rollerball.RewardSignal), global::Rollerball.RewardSignal.Parser, new[]{ "Reward", "Done" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Rollerball.PixelData), global::Rollerball.PixelData.Parser, new[]{ "Data" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Rollerball.PixelData), global::Rollerball.PixelData.Parser, new[]{ "Data" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Rollerball.UnityMessage), global::Rollerball.UnityMessage.Parser, new[]{ "Observation", "RewardSignal", "PixelData" }, new[]{ "MessageContent" }, null, null, null)
           }));
     }
     #endregion
@@ -1162,6 +1166,348 @@ namespace Rollerball {
             break;
           case 10: {
             Data = input.ReadBytes();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// New message type to identify the message content
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class UnityMessage : pb::IMessage<UnityMessage>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<UnityMessage> _parser = new pb::MessageParser<UnityMessage>(() => new UnityMessage());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<UnityMessage> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Rollerball.RollerballReflection.Descriptor.MessageTypes[5]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public UnityMessage() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public UnityMessage(UnityMessage other) : this() {
+      switch (other.MessageContentCase) {
+        case MessageContentOneofCase.Observation:
+          Observation = other.Observation.Clone();
+          break;
+        case MessageContentOneofCase.RewardSignal:
+          RewardSignal = other.RewardSignal.Clone();
+          break;
+        case MessageContentOneofCase.PixelData:
+          PixelData = other.PixelData.Clone();
+          break;
+      }
+
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public UnityMessage Clone() {
+      return new UnityMessage(this);
+    }
+
+    /// <summary>Field number for the "observation" field.</summary>
+    public const int ObservationFieldNumber = 1;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Rollerball.Observation Observation {
+      get { return messageContentCase_ == MessageContentOneofCase.Observation ? (global::Rollerball.Observation) messageContent_ : null; }
+      set {
+        messageContent_ = value;
+        messageContentCase_ = value == null ? MessageContentOneofCase.None : MessageContentOneofCase.Observation;
+      }
+    }
+
+    /// <summary>Field number for the "rewardSignal" field.</summary>
+    public const int RewardSignalFieldNumber = 2;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Rollerball.RewardSignal RewardSignal {
+      get { return messageContentCase_ == MessageContentOneofCase.RewardSignal ? (global::Rollerball.RewardSignal) messageContent_ : null; }
+      set {
+        messageContent_ = value;
+        messageContentCase_ = value == null ? MessageContentOneofCase.None : MessageContentOneofCase.RewardSignal;
+      }
+    }
+
+    /// <summary>Field number for the "pixelData" field.</summary>
+    public const int PixelDataFieldNumber = 3;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Rollerball.PixelData PixelData {
+      get { return messageContentCase_ == MessageContentOneofCase.PixelData ? (global::Rollerball.PixelData) messageContent_ : null; }
+      set {
+        messageContent_ = value;
+        messageContentCase_ = value == null ? MessageContentOneofCase.None : MessageContentOneofCase.PixelData;
+      }
+    }
+
+    private object messageContent_;
+    /// <summary>Enum of possible cases for the "message_content" oneof.</summary>
+    public enum MessageContentOneofCase {
+      None = 0,
+      Observation = 1,
+      RewardSignal = 2,
+      PixelData = 3,
+    }
+    private MessageContentOneofCase messageContentCase_ = MessageContentOneofCase.None;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public MessageContentOneofCase MessageContentCase {
+      get { return messageContentCase_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearMessageContent() {
+      messageContentCase_ = MessageContentOneofCase.None;
+      messageContent_ = null;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as UnityMessage);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(UnityMessage other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (!object.Equals(Observation, other.Observation)) return false;
+      if (!object.Equals(RewardSignal, other.RewardSignal)) return false;
+      if (!object.Equals(PixelData, other.PixelData)) return false;
+      if (MessageContentCase != other.MessageContentCase) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (messageContentCase_ == MessageContentOneofCase.Observation) hash ^= Observation.GetHashCode();
+      if (messageContentCase_ == MessageContentOneofCase.RewardSignal) hash ^= RewardSignal.GetHashCode();
+      if (messageContentCase_ == MessageContentOneofCase.PixelData) hash ^= PixelData.GetHashCode();
+      hash ^= (int) messageContentCase_;
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (messageContentCase_ == MessageContentOneofCase.Observation) {
+        output.WriteRawTag(10);
+        output.WriteMessage(Observation);
+      }
+      if (messageContentCase_ == MessageContentOneofCase.RewardSignal) {
+        output.WriteRawTag(18);
+        output.WriteMessage(RewardSignal);
+      }
+      if (messageContentCase_ == MessageContentOneofCase.PixelData) {
+        output.WriteRawTag(26);
+        output.WriteMessage(PixelData);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (messageContentCase_ == MessageContentOneofCase.Observation) {
+        output.WriteRawTag(10);
+        output.WriteMessage(Observation);
+      }
+      if (messageContentCase_ == MessageContentOneofCase.RewardSignal) {
+        output.WriteRawTag(18);
+        output.WriteMessage(RewardSignal);
+      }
+      if (messageContentCase_ == MessageContentOneofCase.PixelData) {
+        output.WriteRawTag(26);
+        output.WriteMessage(PixelData);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (messageContentCase_ == MessageContentOneofCase.Observation) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Observation);
+      }
+      if (messageContentCase_ == MessageContentOneofCase.RewardSignal) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(RewardSignal);
+      }
+      if (messageContentCase_ == MessageContentOneofCase.PixelData) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(PixelData);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(UnityMessage other) {
+      if (other == null) {
+        return;
+      }
+      switch (other.MessageContentCase) {
+        case MessageContentOneofCase.Observation:
+          if (Observation == null) {
+            Observation = new global::Rollerball.Observation();
+          }
+          Observation.MergeFrom(other.Observation);
+          break;
+        case MessageContentOneofCase.RewardSignal:
+          if (RewardSignal == null) {
+            RewardSignal = new global::Rollerball.RewardSignal();
+          }
+          RewardSignal.MergeFrom(other.RewardSignal);
+          break;
+        case MessageContentOneofCase.PixelData:
+          if (PixelData == null) {
+            PixelData = new global::Rollerball.PixelData();
+          }
+          PixelData.MergeFrom(other.PixelData);
+          break;
+      }
+
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            global::Rollerball.Observation subBuilder = new global::Rollerball.Observation();
+            if (messageContentCase_ == MessageContentOneofCase.Observation) {
+              subBuilder.MergeFrom(Observation);
+            }
+            input.ReadMessage(subBuilder);
+            Observation = subBuilder;
+            break;
+          }
+          case 18: {
+            global::Rollerball.RewardSignal subBuilder = new global::Rollerball.RewardSignal();
+            if (messageContentCase_ == MessageContentOneofCase.RewardSignal) {
+              subBuilder.MergeFrom(RewardSignal);
+            }
+            input.ReadMessage(subBuilder);
+            RewardSignal = subBuilder;
+            break;
+          }
+          case 26: {
+            global::Rollerball.PixelData subBuilder = new global::Rollerball.PixelData();
+            if (messageContentCase_ == MessageContentOneofCase.PixelData) {
+              subBuilder.MergeFrom(PixelData);
+            }
+            input.ReadMessage(subBuilder);
+            PixelData = subBuilder;
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            global::Rollerball.Observation subBuilder = new global::Rollerball.Observation();
+            if (messageContentCase_ == MessageContentOneofCase.Observation) {
+              subBuilder.MergeFrom(Observation);
+            }
+            input.ReadMessage(subBuilder);
+            Observation = subBuilder;
+            break;
+          }
+          case 18: {
+            global::Rollerball.RewardSignal subBuilder = new global::Rollerball.RewardSignal();
+            if (messageContentCase_ == MessageContentOneofCase.RewardSignal) {
+              subBuilder.MergeFrom(RewardSignal);
+            }
+            input.ReadMessage(subBuilder);
+            RewardSignal = subBuilder;
+            break;
+          }
+          case 26: {
+            global::Rollerball.PixelData subBuilder = new global::Rollerball.PixelData();
+            if (messageContentCase_ == MessageContentOneofCase.PixelData) {
+              subBuilder.MergeFrom(PixelData);
+            }
+            input.ReadMessage(subBuilder);
+            PixelData = subBuilder;
             break;
           }
         }

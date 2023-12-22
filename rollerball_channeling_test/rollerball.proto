@@ -25,3 +25,12 @@ message RewardSignal {
 message PixelData {
     bytes data = 1;
 }
+
+// New message type to identify the message content
+message UnityMessage {
+    oneof message_content {
+        Observation observation = 1;
+        RewardSignal rewardSignal = 2;
+        PixelData pixelData = 3;
+    }
+}

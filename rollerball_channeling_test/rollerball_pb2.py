@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10rollerball.proto\x12\nrollerball\".\n\x0bVector3Data\x12\t\n\x01X\x18\x01 \x01(\x02\x12\t\n\x01Y\x18\x02 \x01(\x02\x12\t\n\x01Z\x18\x03 \x01(\x02\"i\n\x0bObservation\x12)\n\x08Position\x18\x01 \x01(\x0b\x32\x17.rollerball.Vector3Data\x12/\n\x0eTargetPosition\x18\x02 \x01(\x0b\x32\x17.rollerball.Vector3Data\"0\n\x06\x41\x63tion\x12&\n\x05\x46orce\x18\x01 \x01(\x0b\x32\x17.rollerball.Vector3Data\",\n\x0cRewardSignal\x12\x0e\n\x06reward\x18\x01 \x01(\x02\x12\x0c\n\x04\x64one\x18\x02 \x01(\x08\"\x19\n\tPixelData\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10rollerball.proto\x12\nrollerball\".\n\x0bVector3Data\x12\t\n\x01X\x18\x01 \x01(\x02\x12\t\n\x01Y\x18\x02 \x01(\x02\x12\t\n\x01Z\x18\x03 \x01(\x02\"i\n\x0bObservation\x12)\n\x08Position\x18\x01 \x01(\x0b\x32\x17.rollerball.Vector3Data\x12/\n\x0eTargetPosition\x18\x02 \x01(\x0b\x32\x17.rollerball.Vector3Data\"0\n\x06\x41\x63tion\x12&\n\x05\x46orce\x18\x01 \x01(\x0b\x32\x17.rollerball.Vector3Data\",\n\x0cRewardSignal\x12\x0e\n\x06reward\x18\x01 \x01(\x02\x12\x0c\n\x04\x64one\x18\x02 \x01(\x08\"\x19\n\tPixelData\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"\xaf\x01\n\x0cUnityMessage\x12.\n\x0bobservation\x18\x01 \x01(\x0b\x32\x17.rollerball.ObservationH\x00\x12\x30\n\x0crewardSignal\x18\x02 \x01(\x0b\x32\x18.rollerball.RewardSignalH\x00\x12*\n\tpixelData\x18\x03 \x01(\x0b\x32\x15.rollerball.PixelDataH\x00\x42\x11\n\x0fmessage_contentb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -31,4 +31,6 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_REWARDSIGNAL']._serialized_end=281
   _globals['_PIXELDATA']._serialized_start=283
   _globals['_PIXELDATA']._serialized_end=308
+  _globals['_UNITYMESSAGE']._serialized_start=311
+  _globals['_UNITYMESSAGE']._serialized_end=486
 # @@protoc_insertion_point(module_scope)

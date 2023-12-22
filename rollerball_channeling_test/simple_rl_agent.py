@@ -4,7 +4,9 @@ import torch.optim as optim
 import torch.nn.functional as F
 import struct
 import numpy
-from rollerball_pb2 import Observation, Action, RewardSignal, PixelData 
+from rollerball_pb2 import Observation, Action, RewardSignal, PixelData
+import random
+
 
 GAMMA = 0.99 #discount factor
 
@@ -72,9 +74,8 @@ def receive_message(connection):
 
 #Collect data from Unity via protobuf
 def collect_episode_data(connection):
-    episode_data = []
+    #episode_data = []
     while True:
-        print("starting a new update:")
         serilized_observation = receive_message(connection) #this is the XYZ position observation
         if not serilized_observation:
             break  # End of episode
@@ -82,25 +83,28 @@ def collect_episode_data(connection):
         observation.ParseFromString(serilized_observation)
         print("observation (X,Y,Z) received:", observation.Position.X, observation.Position.Y, observation.Position.Z )
         
+        #This block of code can be uncommented if we are choosing to attach a model that takes in observation and outputs action
+        '''
         # Convert observation to tensor
         obs_tensor = torch.tensor([observation.Position.X, observation.Position.Y, observation.Position.Z,
                                    observation.TargetPosition.X, observation.TargetPosition.Y, observation.TargetPosition.Z],
                                   dtype=torch.float32)
 
         '''
+        '''
         print("receiving pixel data...")
         serilized_pixel = receive_message(connection) #this is the pixel data
         print("serilized pixel data received")
-        
-
         # Deserialize the protobuf message
-        pixel_data_message = PixelData.FromString(serilized_pixel)
+        pixel_data_message = PixelData.ParseFromString(serilized_pixel)
         # Extract the pixel data byte array
         pixel_data = pixel_data_message.data
 
         print("pixel data received: ",pixel_data)
+        
         '''
-
+        #This block of code can be uncommented if we are choosinng to attach a model that takes in observation and outputs action
+        '''
         # Get action from the agent
         agent_output = net(obs_tensor)
         
@@ -110,6 +114,10 @@ def collect_episode_data(connection):
         # Choose action based on the agent's output
         action = Action()
         action.Force.X, action.Force.Y, action.Force.Z = action_values[0], 0, action_values[1]  # Set X and Z forces; Y is set to 0
+        '''
+        action = Action()
+        action.Force.X, action.Force.Y, action.Force.Z = random.uniform(0.3, 0.7), 0, random.uniform(0.3, 0.7)  # Set X and Z forces randomly; Y is set to 0
+
         serialized_action = action.SerializeToString()
         connection.sendall(struct.pack('!I', len(serialized_action)))
         connection.sendall(serialized_action)
@@ -122,12 +130,20 @@ def collect_episode_data(connection):
         reward_signal.ParseFromString(reward_data)
         print("reward signal received:",reward_signal.reward)
 
-        #episode_data.append((obs_tensor, torch.tensor([action_values]), reward_signal.reward))
+        #This block of code can be uncommented if we are choosinng to attach a model that takes in observation and outputs action
+        '''
         episode_data.append((obs_tensor, torch.tensor(numpy.array(action_values)), reward_signal.reward))
         print("episode data appended")
-
+        '''
         if reward_signal.done:
+            SendAcknowledgment(connection)
             break  # End of episode
 
-    return episode_data
+def SendAcknowledgment(connection):
+    # Send a simple acknowledgment message 'OK'
+    ack_message = 'OK'
+    serialized_ack = ack_message.encode('utf-8')
+    connection.sendall(struct.pack('!I', len(serialized_ack)))
+    connection.sendall(serialized_ack)
+    #return episode_data
 
