@@ -14,7 +14,7 @@ public class RollerBallAgent : MonoBehaviour
     public Rigidbody rb;
     public Transform target;
     public float reachDistance = 1.5f; // Distance to consider the target reached
-    public Vector3 spawnArea = new Vector3(5, 0.5f, 5); // Area to spawn the target
+    public Vector3 spawnArea = new Vector3(4.5f, 0.5f, 4.5f); // Area to spawn the target
     private TcpClient client;
     private NetworkStream stream;
     private BinaryReader reader;
@@ -48,13 +48,14 @@ public class RollerBallAgent : MonoBehaviour
         {
             //Debug.Log("Episode Complete detected in FixedUpdate()");
             SendRewardSignal(true);
-            OnEpisodeBegin();
+            //OnEpisodeBegin();
         }
 
-        if (stream != null)
+        else if (stream != null)
         {
             //Debug.Log("entering into SendObservationToServer() ");
             SendObservationToServer();
+            
             //Debug.Log("entering into ReceiveActionFromServer()");
             ReceiveActionFromServer();
             //Debug.Log("entering into SendRewardSignal()");
@@ -74,13 +75,13 @@ public class RollerBallAgent : MonoBehaviour
         if (Vector3.Distance(transform.localPosition, target.localPosition) < reachDistance)
         {
             // Reached the target
-            Debug.Log("Episode Complete.");
+            Debug.LogError("Episode Complete.");
             return true;
         }
-        if (transform.localPosition.y < 0)
+        if (transform.localPosition.y < 0.5)
         {
             // Fell off the platform
-            Debug.Log("Episode Complete.");
+            Debug.LogError("Episode Complete.");
             return true;
         }
         return false;
@@ -90,26 +91,28 @@ public class RollerBallAgent : MonoBehaviour
     {
         Debug.Log("Episode Begins...");
         // Reset agent and target positions
-        transform.localPosition = new Vector3(0, 0.5f, 0); // Reset agent position
+        transform.position = new Vector3(0, 0.5f, 0); // Reset agent position
         rb.velocity = Vector3.zero; // Reset velocity
         // Move the target to a random position within the spawn area
-        target.localPosition = new Vector3(UnityEngine.Random.Range(-spawnArea.x, spawnArea.x), 0.5f, UnityEngine.Random.Range(-spawnArea.z, spawnArea.z));
+        target.position = new Vector3(UnityEngine.Random.Range(-spawnArea.x, spawnArea.x), 0.5f, UnityEngine.Random.Range(-spawnArea.z, spawnArea.z));
     }
     
     void SendObservationToServer()
     {
-        Debug.Log("Sending new Observation To Server..");
+        
         try
         {
             Observation observation = new Observation
             {
-                Position = new Vector3Data { X = transform.localPosition.x, Y = transform.localPosition.y, Z = transform.localPosition.z },
-                TargetPosition = new Vector3Data { X = target.localPosition.x, Y = target.localPosition.y, Z = target.localPosition.z }
+                Position = new Vector3Data { X = transform.position.x, Y = transform.position.y, Z = transform.position.z },
+                TargetPosition = new Vector3Data { X = target.position.x, Y = target.position.y, Z = target.position.z }
             };
 
             byte[] serializedObservation = observation.ToByteArray();
             writer.Write(IPAddress.HostToNetworkOrder(serializedObservation.Length));
             writer.Write(serializedObservation);
+            Debug.Log("Sent new Observation To Server: ");
+            
         }
         catch (Exception e)
         {
@@ -149,12 +152,14 @@ public class RollerBallAgent : MonoBehaviour
     
     void OnDestroy()
     {
-        // Close the stream and client when the object is destroyed
-        if (stream != null)
-            stream.Close();
         if (client != null)
+        {
+            SendRewardSignal(true);  // Ensure server is notified
             client.Close();
+        }
     }
+    
+    
     
     void SendRewardSignal(bool done)
     {
@@ -168,13 +173,47 @@ public class RollerBallAgent : MonoBehaviour
         byte[] serializedRewardSignal = rewardSignal.ToByteArray();
         writer.Write(IPAddress.HostToNetworkOrder(serializedRewardSignal.Length));
         writer.Write(serializedRewardSignal);
+        
+        if (done)
+        {
+            // Wait for acknowledgment from the server
+            WaitForAcknowledgment();
+        }
     }
     
+    void WaitForAcknowledgment()
+    {
+        // Set a timeout duration
+        float timeout = 5.0f; // 5 seconds for timeout
+        float startTime = Time.time;
+
+        // Block until acknowledgment is received or timeout
+        while (!stream.DataAvailable)
+        {
+            if (Time.time - startTime > timeout)
+            {
+                Debug.LogError("Timeout waiting for acknowledgment from server.");
+                // Handle timeout scenario, such as retrying or handling a dropped connection
+                break;
+            }
+        }
+
+        // If the acknowledgment is available, read and handle it
+        if (stream.DataAvailable)
+        {
+            int messageLength = IPAddress.NetworkToHostOrder(reader.ReadInt32());
+            byte[] message = reader.ReadBytes(messageLength);
+            // Handle the acknowledgment message as needed
+            Debug.Log("Acknowledgment received from server.");
+        }
+    }
+
+
     float CalculateReward()
     {
         // Constants
         float rewardForReachingTarget = 10.0f;  // Large reward for reaching the target
-        float rewardForMovingCloser = 0.1f;     // Small reward for moving closer to the target
+        float rewardForMovingCloser = 0.3f;     // Small reward for moving closer to the target
         float penaltyForMovingAway = -0.1f;     // Small penalty for moving away from the target
 
         // Calculate the current and previous distances to the target
